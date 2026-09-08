@@ -1,0 +1,26 @@
+# PiPi Vision - tested baseline
+# Python: 3.11.16
+#
+# Important:
+# - MediaPipe 0.10.14 is intentionally pinned because this is the version
+#   that was verified to run successfully in the current project.
+# - Do NOT install both opencv-python and opencv-contrib-python manually.
+#   MediaPipe uses the contrib package; keeping one OpenCV package avoids
+#   the cv2 namespace conflict.
+#
+# Current project dependencies
+mediapipe==0.10.14
+opencv-contrib-python==5.0.0.93
+numpy==2.4.6
+
+# The following packages are pulled in by MediaPipe automatically.
+# They are intentionally not hard-pinned here so pip can select the
+# platform-compatible wheels:
+# absl-py
+# attrs
+# flatbuffers
+# jax
+# jaxlib
+# matplotlib
+# protobuf
+# sounddevice

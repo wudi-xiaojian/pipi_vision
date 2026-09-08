@@ -1,0 +1,11 @@
+name: pipi-vision
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11.16
+  - pip
+  - pip:
+      - mediapipe==0.10.14
+      - opencv-contrib-python==5.0.0.93
+      - numpy==2.4.6
