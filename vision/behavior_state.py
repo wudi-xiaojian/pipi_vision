@@ -42,132 +42,124 @@ class BehaviorState:
         action = self.action
 
 
-        # =========================
-        # 未知动作
-        # =========================
+        # ==================================================
+        # NOT_IN_SEAT
+        # ==================================================
 
-        if action == "UNKNOWN_ACTION":
+        if action == "NOT_IN_SEAT":
 
-            if emotion == "HAPPINESS":
-
-                return "用户正在做未知动作，看起来很开心"
-
-            if emotion == "SADNESS":
-
-                return "用户正在做未知动作，看起来有些难过"
-
-            return "检测到用户正在进行未知动作"
+            return "The user is not in their seat."
 
 
-        # =========================
-        # 开心 + 挥手
-        # =========================
-
-        if (
-            emotion == "HAPPINESS"
-            and action == "WAVE"
-        ):
-
-            return "用户正在开心地挥手"
-
-
-        # =========================
-        # 开心 + 左手
-        # =========================
-
-        if (
-            emotion == "HAPPINESS"
-            and action == "LEFT_HAND_UP"
-        ):
-
-            return "用户正在开心地举起左手"
-
-
-        # =========================
-        # 开心 + 右手
-        # =========================
-
-        if (
-            emotion == "HAPPINESS"
-            and action == "RIGHT_HAND_UP"
-        ):
-
-            return "用户正在开心地举起右手"
-
-
-        # =========================
-        # 开心 + 双手
-        # =========================
-
-        if (
-            emotion == "HAPPINESS"
-            and action == "BOTH_HANDS_UP"
-        ):
-
-            return "用户正在开心地举起双手"
-
-
-        # =========================
-        # 普通动作
-        # =========================
+        # ==================================================
+        # WAVE
+        # ==================================================
 
         if action == "WAVE":
 
-            return "用户正在挥手"
+            if emotion == "HAPPINESS":
+
+                return (
+                    "The user is happily waving."
+                )
+
+            if emotion == "SADNESS":
+
+                return (
+                    "The user is waving and looks sad."
+                )
+
+            return "The user is waving."
 
 
-        if action == "LEFT_HAND_UP":
+        # ==================================================
+        # HAND_UP
+        # ==================================================
 
-            return "用户正在举起左手"
+        if action == "HAND_UP":
 
+            if emotion == "HAPPINESS":
 
-        if action == "RIGHT_HAND_UP":
+                return (
+                    "The user is happily raising a hand."
+                )
 
-            return "用户正在举起右手"
+            if emotion == "SADNESS":
 
+                return (
+                    "The user is raising a hand and looks sad."
+                )
 
-        if action == "BOTH_HANDS_UP":
-
-            return "用户正在举起双手"
-
-
-        # =========================
-        # 表情
-        # =========================
-
-        if emotion == "HAPPINESS":
-
-            return "用户看起来很开心"
+            return "The user has raised a hand."
 
 
-        if emotion == "SADNESS":
+        # ==================================================
+        # HEAD_DOWN
+        # ==================================================
 
-            return "用户看起来有些难过"
+        if action == "HEAD_DOWN":
 
+            if emotion == "SADNESS":
 
-        if emotion == "ANGER":
+                return (
+                    "The user looks sad and is looking down."
+                )
 
-            return "用户看起来有些生气"
-
-
-        if emotion == "SURPRISE":
-
-            return "用户看起来有些惊讶"
-
-
-        if emotion == "FEAR":
-
-            return "用户看起来有些害怕"
+            return "The user is looking down."
 
 
-        if emotion == "DISGUST":
+        # ==================================================
+        # DAYDREAMING
+        # ==================================================
 
-            return "用户看起来有些厌恶"
+        if action == "DAYDREAMING":
+
+            return (
+                "The user appears to be daydreaming."
+            )
 
 
-        if emotion == "NEUTRAL":
+        # ==================================================
+        # NO ACTION
+        # ==================================================
 
-            return "用户表情比较自然"
+        if action == "NO ACTION":
+
+            if emotion == "HAPPINESS":
+
+                return "The user looks happy."
+
+            if emotion == "SADNESS":
+
+                return "The user looks sad."
+
+            if emotion == "ANGER":
+
+                return "The user looks angry."
+
+            if emotion == "SURPRISE":
+
+                return "The user looks surprised."
+
+            if emotion == "FEAR":
+
+                return "The user looks afraid."
+
+            if emotion == "DISGUST":
+
+                return "The user looks disgusted."
+
+            if emotion == "NEUTRAL":
+
+                return (
+                    "The user has a neutral expression."
+                )
+
+            return "The user is sitting normally."
 
 
-        return "检测到用户行为"
+        # ==================================================
+        # 默认
+        # ==================================================
+
+        return "The user's behavior has been detected."
