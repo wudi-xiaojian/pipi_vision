@@ -309,50 +309,6 @@ def main():
                         )
                     )
 
-                    # ------------------------------------------------
-                    # BlendShape Debug
-                    # ------------------------------------------------
-
-                    blendshape_x = (
-                        frame.shape[1]
-                        -
-                        300
-                    )
-
-                    blendshape_y = 40
-
-                    for i, category in enumerate(
-                        blendshapes[:20]
-                    ):
-
-                        name = (
-                            category.category_name
-                        )
-
-                        score = (
-                            category.score
-                        )
-
-                        text = (
-                            f"{name}: "
-                            f"{score:.2f}"
-                        )
-
-                        cv2.putText(
-                            frame,
-                            text,
-                            (
-                                blendshape_x,
-                                blendshape_y
-                                +
-                                i * 28
-                            ),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            0.55,
-                            (255, 255, 255),
-                            2,
-                            cv2.LINE_AA
-                        )
 
                 # ------------------------------------------------
                 # Facial Transformation Matrix
