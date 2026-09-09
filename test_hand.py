@@ -2,9 +2,9 @@ import cv2
 import time
 
 from vision.hand_detector import HandDetector
+from vision.gesture_detector import GestureDetector
 
 
-# MediaPipe Hand Landmarker 的 21 个关键点连接关系
 HAND_CONNECTIONS = [
     # Thumb
     (0, 1),
@@ -12,19 +12,19 @@ HAND_CONNECTIONS = [
     (2, 3),
     (3, 4),
 
-    # Index finger
+    # Index
     (0, 5),
     (5, 6),
     (6, 7),
     (7, 8),
 
-    # Middle finger
+    # Middle
     (0, 9),
     (9, 10),
     (10, 11),
     (11, 12),
 
-    # Ring finger
+    # Ring
     (0, 13),
     (13, 14),
     (14, 15),
@@ -44,22 +44,16 @@ HAND_CONNECTIONS = [
 
 
 def draw_hand_landmarks(frame, hand_landmarks):
-    """
-    在画面上绘制一只手的 21 个关键点和骨架。
-    """
-
     height, width = frame.shape[:2]
 
     points = []
 
-    # 1. 把归一化坐标转换成像素坐标
     for index, landmark in enumerate(hand_landmarks):
         x = int(landmark.x * width)
         y = int(landmark.y * height)
 
         points.append((x, y))
 
-        # 画关键点
         cv2.circle(
             frame,
             (x, y),
@@ -68,7 +62,6 @@ def draw_hand_landmarks(frame, hand_landmarks):
             -1
         )
 
-        # 显示关键点编号
         cv2.putText(
             frame,
             str(index),
@@ -79,15 +72,11 @@ def draw_hand_landmarks(frame, hand_landmarks):
             2
         )
 
-    # 2. 绘制手部骨架
     for start_index, end_index in HAND_CONNECTIONS:
-        start = points[start_index]
-        end = points[end_index]
-
         cv2.line(
             frame,
-            start,
-            end,
+            points[start_index],
+            points[end_index],
             (255, 0, 0),
             2
         )
@@ -98,6 +87,8 @@ def main():
         model_path="models/hand_landmarker.task",
         num_hands=2,
     )
+
+    gesture_detector = GestureDetector()
 
     cap = cv2.VideoCapture(0)
 
@@ -118,15 +109,15 @@ def main():
             (time.time() - start_time) * 1000
         )
 
-        # Hand Landmarker
         result = hand_detector.detect(
             frame,
             timestamp_ms
         )
 
-        hand_count = len(result.hand_landmarks)
+        hand_count = len(
+            result.hand_landmarks
+        )
 
-        # 绘制每只手
         for hand_index, hand_landmarks in enumerate(
             result.hand_landmarks
         ):
@@ -135,7 +126,10 @@ def main():
                 hand_landmarks
             )
 
-            # 获取左右手信息
+            gesture = gesture_detector.detect(
+                hand_landmarks
+            )
+
             handedness = "UNKNOWN"
 
             if (
@@ -147,11 +141,15 @@ def main():
                     result.handedness[hand_index][0].category_name
                 )
 
-            # 找到手掌中心附近的位置
             wrist = hand_landmarks[0]
 
-            wrist_x = int(wrist.x * frame.shape[1])
-            wrist_y = int(wrist.y * frame.shape[0])
+            wrist_x = int(
+                wrist.x * frame.shape[1]
+            )
+
+            wrist_y = int(
+                wrist.y * frame.shape[0]
+            )
 
             cv2.putText(
                 frame,
@@ -163,7 +161,16 @@ def main():
                 2
             )
 
-        # 左上角显示手数量
+            cv2.putText(
+                frame,
+                gesture,
+                (wrist_x, wrist_y + 70),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (0, 255, 0),
+                2
+            )
+
         cv2.putText(
             frame,
             f"Hands: {hand_count}",
@@ -175,7 +182,7 @@ def main():
         )
 
         cv2.imshow(
-            "Hand Landmarker Test",
+            "Hand Gesture Test",
             frame
         )
 
