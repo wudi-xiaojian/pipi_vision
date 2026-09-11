@@ -57,7 +57,6 @@ def main():
 
     behavior_state = BehaviorState()
 
-
     # ======================================================
     # 2. 打开摄像头
     # ======================================================
@@ -75,7 +74,6 @@ def main():
         hand_detector.close()
 
         return
-
 
     print("PiPi Vision")
 
@@ -103,13 +101,11 @@ def main():
 
     print("按 Q 退出")
 
-
     # ======================================================
     # 3. 时间
     # ======================================================
 
     start_time = time.time()
-
 
     # ======================================================
     # 4. 主循环
@@ -131,7 +127,6 @@ def main():
 
             break
 
-
         # ==================================================
         # 镜像
         # ==================================================
@@ -140,7 +135,6 @@ def main():
             frame,
             1
         )
-
 
         # ==================================================
         # BGR → RGB
@@ -151,7 +145,6 @@ def main():
             cv2.COLOR_BGR2RGB
         )
 
-
         # ==================================================
         # Timestamp
         # ==================================================
@@ -160,7 +153,6 @@ def main():
             (time.time() - start_time)
             * 1000
         )
-
 
         # ==================================================
         # 默认状态
@@ -186,7 +178,6 @@ def main():
 
         facial_transformation_matrix = None
 
-
         # ==================================================
         # 5. FACE
         # ==================================================
@@ -196,11 +187,9 @@ def main():
             timestamp_ms
         )
 
-
         face_count = len(
             face_result.face_landmarks
         )
-
 
         if face_count > 0:
 
@@ -212,12 +201,10 @@ def main():
                 face_result.face_landmarks[0]
             )
 
-
             frame = draw_face_landmarks(
                 frame,
                 face_landmarks
             )
-
 
             # --------------------------------------------------
             # Emotion
@@ -234,13 +221,11 @@ def main():
                     face_result.face_blendshapes[0]
                 )
 
-
                 emotion = (
                     emotion_detector.detect(
                         blendshapes
                     )
                 )
-
 
             # --------------------------------------------------
             # Facial Transformation Matrix
@@ -255,10 +240,8 @@ def main():
             ):
 
                 facial_transformation_matrix = (
-                    face_result
-                    .facial_transformation_matrixes[0]
+                    face_result.facial_transformation_matrixes[0]
                 )
-
 
         # ==================================================
         # 6. POSE
@@ -269,18 +252,15 @@ def main():
             timestamp_ms
         )
 
-
         pose_count = len(
             pose_result.pose_landmarks
         )
-
 
         if pose_count > 0:
 
             pose_landmarks = (
                 pose_result.pose_landmarks[0]
             )
-
 
             # --------------------------------------------------
             # Pose Landmarks
@@ -290,7 +270,6 @@ def main():
                 frame,
                 pose_landmarks
             )
-
 
             # --------------------------------------------------
             # Action Detector
@@ -303,7 +282,6 @@ def main():
                 )
             )
 
-
         else:
 
             upper_body_action = (
@@ -311,7 +289,6 @@ def main():
             )
 
             action_detector.reset()
-
 
         # ==================================================
         # 7. HAND
@@ -322,11 +299,9 @@ def main():
             timestamp_ms
         )
 
-
         hand_count = len(
             hand_result.hand_landmarks
         )
-
 
         # ==================================================
         # 8. 左右手分别识别
@@ -345,7 +320,6 @@ def main():
                 hand_landmarks
             )
 
-
             # --------------------------------------------------
             # Gesture
             # --------------------------------------------------
@@ -356,13 +330,11 @@ def main():
                 )
             )
 
-
             # --------------------------------------------------
             # 获取左右手信息
             # --------------------------------------------------
 
             handedness = "Unknown"
-
 
             if (
                 hand_result.handedness
@@ -376,7 +348,6 @@ def main():
                     hand_result.handedness[index]
                 )
 
-
                 if (
                     handedness_info
                     and len(
@@ -389,15 +360,15 @@ def main():
                         .category_name
                     )
 
-
             # --------------------------------------------------
             # Left Hand
             # --------------------------------------------------
 
             if handedness == "Left":
 
-                left_hand_gesture = gesture
-
+                left_hand_gesture = (
+                    gesture
+                )
 
             # --------------------------------------------------
             # Right Hand
@@ -405,17 +376,12 @@ def main():
 
             elif handedness == "Right":
 
-                right_hand_gesture = gesture
-
+                right_hand_gesture = (
+                    gesture
+                )
 
         # ==================================================
         # 9. 选择当前主要手势
-        #
-        # BehaviorState 暂时仍使用：
-        #
-        #     hand_gesture
-        #
-        # 下一阶段再升级成双手输入。
         # ==================================================
 
         if (
@@ -442,23 +408,17 @@ def main():
                 "NO GESTURE"
             )
 
-
         # ==================================================
         # 10. HIGH FIVE
         #
-        # 只使用一只实际检测到的手。
+        # HAND_APPROACHING：
+        #     HighFiveDetector 内部状态
         #
-        # 用户：
-        #
-        #     🖐 → → → 📷
-        #
-        #     ↓
-        #
-        #     HIGH_FIVE
+        # HIGH_FIVE：
+        #     真正完成 High Five
         # ==================================================
 
         high_five_action = "NO ACTION"
-
 
         # --------------------------------------------------
         # 优先使用左手
@@ -499,7 +459,6 @@ def main():
                             .category_name
                         )
 
-
                 if handedness == "Left":
 
                     high_five_action = (
@@ -510,7 +469,6 @@ def main():
                     )
 
                     break
-
 
         # --------------------------------------------------
         # 如果没有左手，则使用右手
@@ -551,7 +509,6 @@ def main():
                             .category_name
                         )
 
-
                 if handedness == "Right":
 
                     high_five_action = (
@@ -563,88 +520,218 @@ def main():
 
                     break
 
-
         # ==================================================
         # 11. BehaviorState
         # ==================================================
 
-        behavior_state.update(
-            emotion,
-            upper_body_action,
-            hand_gesture
+        # --------------------------------------------------
+        # HAND_APPROACHING 不进入 BehaviorState
+        #
+        # 只有真正完成：
+        #
+        #     HIGH_FIVE
+        #
+        # 才传给 BehaviorState。
+        # --------------------------------------------------
+
+        behavior_high_five_action = "NO ACTION"
+
+        if high_five_action == "HIGH_FIVE":
+
+            behavior_high_five_action = "HIGH_FIVE"
+
+        # --------------------------------------------------
+        # 默认使用 Pose Action
+        # --------------------------------------------------
+
+        behavior_pose_action = (
+            upper_body_action
         )
 
+        # --------------------------------------------------
+        # 只有真正完成 HIGH_FIVE 后，
+        # 才屏蔽 WAVE。
+        # --------------------------------------------------
+
+        if behavior_high_five_action == "HIGH_FIVE":
+
+            behavior_pose_action = (
+                "NO ACTION"
+            )
+
+        # --------------------------------------------------
+        # 更新 BehaviorState
+        # --------------------------------------------------
+
+        behavior_state.update(
+            emotion,
+            behavior_pose_action,
+            hand_gesture,
+            behavior_high_five_action
+        )
+
+        # --------------------------------------------------
+        # 获取最终状态
+        # --------------------------------------------------
 
         state = (
             behavior_state.get_state()
         )
 
-
         description = (
             behavior_state.get_description()
         )
 
-
         # ==================================================
         # 12. 简洁状态面板
         # ==================================================
-        # 只显示核心判定结果，不显示 MediaPipe BlendShapes
-        # 和 High Five 的内部调试参数。
 
         text_x = 15
+
         text_y = 45
+
         text_gap = 42
+
         font = cv2.FONT_HERSHEY_SIMPLEX
+
         font_scale = 0.78
+
         thickness = 3
 
+        # --------------------------------------------------
         # Emotion
+        # --------------------------------------------------
+
         cv2.putText(
-            frame, f"Emotion: {state['emotion']}",
-            (text_x, text_y), font, font_scale,
-            (255, 255, 255), thickness, cv2.LINE_AA
+            frame,
+            f"Emotion: {state['emotion']}",
+            (
+                text_x,
+                text_y
+            ),
+            font,
+            font_scale,
+            (255, 255, 255),
+            thickness,
+            cv2.LINE_AA
         )
 
+        # --------------------------------------------------
         # Action
+        # --------------------------------------------------
+
         cv2.putText(
-            frame, f"Action: {state['pose_action']}",
-            (text_x, text_y + text_gap), font, font_scale,
-            (255, 255, 255), thickness, cv2.LINE_AA
+            frame,
+            f"Action: {state['pose_action']}",
+            (
+                text_x,
+                text_y + text_gap
+            ),
+            font,
+            font_scale,
+            (255, 255, 255),
+            thickness,
+            cv2.LINE_AA
         )
 
+        # --------------------------------------------------
         # Gesture
+        # --------------------------------------------------
+
         cv2.putText(
-            frame, f"Gesture: {state['hand_gesture']}",
-            (text_x, text_y + text_gap * 2), font, font_scale,
-            (255, 255, 255), thickness, cv2.LINE_AA
+            frame,
+            f"Gesture: {state['hand_gesture']}",
+            (
+                text_x,
+                text_y + text_gap * 2
+            ),
+            font,
+            font_scale,
+            (255, 255, 255),
+            thickness,
+            cv2.LINE_AA
         )
 
+        # --------------------------------------------------
         # Interaction
+        #
+        # 注意：
+        # 这里显示 High Five 的实际检测状态。
+        #
+        # 如果你希望 HAND_APPROACHING 连这里也不显示，
+        # 可以把下面的变量改成 behavior_high_five_action。
+        # --------------------------------------------------
+
         cv2.putText(
-            frame, f"Interaction: {high_five_action}",
-            (text_x, text_y + text_gap * 3), font, font_scale,
-            (255, 255, 255), thickness, cv2.LINE_AA
+            frame,
+            f"Interaction: {high_five_action}",
+            (
+                text_x,
+                text_y + text_gap * 3
+            ),
+            font,
+            font_scale,
+            (255, 255, 255),
+            thickness,
+            cv2.LINE_AA
         )
 
+        # --------------------------------------------------
         # Behavior
+        # --------------------------------------------------
+
         cv2.putText(
-            frame, f"Behavior: {state['final_behavior']}",
-            (text_x, text_y + text_gap * 4), font, font_scale,
-            (255, 255, 255), thickness, cv2.LINE_AA
+            frame,
+            f"Behavior: {state['final_behavior']}",
+            (
+                text_x,
+                text_y + text_gap * 4
+            ),
+            font,
+            font_scale,
+            (255, 255, 255),
+            thickness,
+            cv2.LINE_AA
         )
 
+        # --------------------------------------------------
         # Bottom description
-        description_y = frame.shape[0] - 30
-        cv2.putText(
-            frame, description, (15, description_y),
-            font, 0.72, (255, 255, 255), 3, cv2.LINE_AA
+        # --------------------------------------------------
+
+        description_y = (
+            frame.shape[0] - 30
         )
 
-        # Hands count
         cv2.putText(
-            frame, f"Hands: {hand_count}",
-            (frame.shape[1] - 150, frame.shape[0] - 30),
-            font, 0.58, (255, 255, 255), 2, cv2.LINE_AA
+            frame,
+            description,
+            (
+                15,
+                description_y
+            ),
+            font,
+            0.72,
+            (255, 255, 255),
+            3,
+            cv2.LINE_AA
+        )
+
+        # --------------------------------------------------
+        # Hands count
+        # --------------------------------------------------
+
+        cv2.putText(
+            frame,
+            f"Hands: {hand_count}",
+            (
+                frame.shape[1] - 150,
+                frame.shape[0] - 30
+            ),
+            font,
+            0.58,
+            (255, 255, 255),
+            2,
+            cv2.LINE_AA
         )
 
         # ==================================================
@@ -656,7 +743,6 @@ def main():
             frame
         )
 
-
         # ==================================================
         # 14. Q 退出
         # ==================================================
@@ -666,11 +752,9 @@ def main():
             & 0xFF
         )
 
-
         if key == ord("q"):
 
             break
-
 
     # ======================================================
     # 15. 释放资源
